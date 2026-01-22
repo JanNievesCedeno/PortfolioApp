@@ -36,9 +36,19 @@
                 </div>
             {% endif %}
 
-            <div class="margin">
-                <video class="img-fluid object-fit-scale" src="{{row['video']}}" alt="Video" controls preload="auto"></video>
-            </div>
+            {% if row['video'] %}
+                <div class="margin">
+                    <div class="ratio ratio-16x9">
+                        <iframe 
+                            src="{{ row['video'].replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/') }}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+            {% endif %}
         </section>
     {% endfor %}
 {% endblock %}

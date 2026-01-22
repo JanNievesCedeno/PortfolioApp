@@ -56,11 +56,11 @@ cur.execute("""
     ON CONFLICT (username) DO NOTHING
 """, (default_username, default_password))
 
-# Insert sample projects
+# Insert projects
 projects = [
-    ("Online Movies Web", "A website that simulates a store where the users can buy movies. Also there's a dashboard where the admin can control the database.", "HTML, CSS, Bootstrap, PHP, MySQL", "static/img/web.png", "static/video/webApp.mp4","https://github.com/JanNievesCedeno/OnlineMoviesWeb", "https://onlinemoviesweb.wuaze.com/index.php"),
-    ("Online Movies Android App", "Mobile App for Android that simulates a store where the user can buy movies. Also there's a dashboard where the admin can control the database.", "Android Studio, Java, Sqlite", "static/img/android.png", "static/video/androidApp.mp4", "https://github.com/JanNievesCedeno/OnlineMoviesAndroid", None),
-    ("PortfolioApp", "Website to show my skills", "Flask, Python, Html, Css, Bootstrap, PostgreSQL", "static/img/portfolio.png", "static/video/portfolio.mp4", "https://github.com/JanNievesCedeno/PortfolioApp", None)
+    ("Online Movies Web", "A website that simulates a store where the users can buy movies. Also there's a dashboard where the admin can control the database.", "HTML, CSS, Bootstrap, PHP, MySQL", "https://res.cloudinary.com/djxujz9qp/image/upload/v1769110829/portfolio/images/qp6hkaj6vcwgagr0msmm.png", "https://www.youtube.com/watch?v=7FtVBAl0g8w", "https://github.com/JanNievesCedeno/OnlineMoviesWeb", "https://onlinemoviesweb.wuaze.com/index.php"),
+    ("Online Movies Android App", "Mobile App for Android that simulates a store where the user can buy movies. Also there's a dashboard where the admin can control the database.", "Android Studio, Java, Sqlite", "https://res.cloudinary.com/djxujz9qp/image/upload/v1769111270/portfolio/images/xqvrju5fnqdlaipxsw1x.png", "https://www.youtube.com/watch?v=RREv3vljJYQ", "https://github.com/JanNievesCedeno/OnlineMoviesAndroid", None),
+    ("PortfolioApp", "Website to show my skills", "Flask, Python, Html, Css, Bootstrap, PostgreSQL", "https://res.cloudinary.com/djxujz9qp/image/upload/v1769111903/portfolio/images/ghqnf24owgkybfjsxwzw.png", "https://www.youtube.com/watch?v=pGhn7y1IWLY", "https://github.com/JanNievesCedeno/PortfolioApp", None)
 ]
 
 for project in projects:

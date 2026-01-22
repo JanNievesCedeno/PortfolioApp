@@ -8,14 +8,17 @@
 
     <form class="text-center" action="/dashboard/addproject" method="post" enctype="multipart/form-data">
         <div class="d-flex flex-column">
-            <input name="name" type="text" placeholder="Project Name">
-            <input name="description" type="text" placeholder="Project Description">
-            <input name="languages" type="text" placeholder="Project Languages/Tools">
-            <input name="git_url" type="text" placeholder="Git URL">
-            <input name="live_url" type="text" placeholder="Live URL">
-            <input name="img" type="file">
-            <input name="video" type="file">
-            <button type="submit">Add Project</button>
+            <input name="name" type="text" placeholder="Project Name" required>
+            <input name="description" type="text" placeholder="Project Description" required>
+            <input name="languages" type="text" placeholder="Project Languages/Tools" required>
+            <input name="git_url" type="url" placeholder="Git URL (https://...)">
+            <input name="live_url" type="url" placeholder="Live URL (https://...)">
+            <label for="img" class="form-label mt-2">Project Image:</label>
+            <input name="img" id="img" type="file" accept="image/*" class="form-control">
+            <label for="video" class="form-label mt-3">YouTube Video URL:</label>
+            <input name="video" id="video" type="url" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..." class="form-control">
+            <input name="order" type="number" placeholder="Display Order (Optional)" class="form-control mt-3">
+            <button type="submit" class="btn btn-primary mt-3">Add Project</button>
         </div>
     </form>
 {% endblock %}

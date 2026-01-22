@@ -1,4 +1,6 @@
 import os
+import cloudinary
+import cloudinary.uploader
 from flask_caching import Cache
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
@@ -10,6 +12,13 @@ from db import get_db, get_cursor, close_db
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+)
 
 # Initialize Flask app
 app = Flask(
@@ -35,6 +44,22 @@ app.teardown_appcontext(close_db)
 
 #########################################################################
 
+# Helper Functions
+def get_cloudinary_public_id(url):
+    """Extract public_id from Cloudinary URL"""
+    if not url:
+        return None
+    try:
+        # URL format: https://res.cloudinary.com/cloud_name/image/upload/v123456/folder/filename.ext
+        parts = url.split('/')
+        # Get folder/filename without extension
+        folder_file = '/'.join(parts[-2:]) if len(parts) >= 2 else parts[-1]
+        return folder_file.rsplit('.', 1)[0]
+    except:
+        return None
+
+#########################################################################
+
 # Routes
 # Route for homepage
 @app.route("/")
@@ -43,7 +68,6 @@ def home():
     cursor = get_cursor()
     cursor.execute("SELECT * FROM projects ORDER BY \"order\" ASC")
     projects = cursor.fetchall()
-    print(projects)
     
     return render_template("home.html", projects=projects)
 
@@ -184,8 +208,10 @@ def addproject():
         name = request.form.get("name")
         description = request.form.get("description")
         languages = request.form.get("languages")
+        video_url = request.form.get("video")  # YouTube URL from text input
         git_url = request.form.get("git_url")
         live_url = request.form.get("live_url")
+        order = request.form.get("order")
 
         if not name:
             flash("Project name is required", "error")
@@ -199,27 +225,37 @@ def addproject():
             flash("Languages are required", "error")
             return redirect("/dashboard/addproject")
         
-        # Request files for the image
-        image_path = None
+        # Validate order is unique
+        if order:
+            cursor = get_cursor()
+            cursor.execute("SELECT id FROM projects WHERE \"order\" = %s", (order,))
+            existing = cursor.fetchall()
+            
+            if existing:
+                flash(f"Order {order} is already in use", "error")
+                return redirect("/dashboard/addproject")
+        
+        # Upload image to Cloudinary
+        image_url = None
         if 'img' in request.files:
             img = request.files["img"]
-            if img.filename != '':
-                image_path = os.path.join("static/img", img.filename)
-                img.save(image_path)
+            if img and img.filename != '':
+                try:
+                    upload_result = cloudinary.uploader.upload(
+                        img,
+                        folder="portfolio/images",
+                        resource_type="image"
+                    )
+                    image_url = upload_result['secure_url']
+                except Exception as e:
+                    flash(f"Image upload failed: {str(e)}", "error")
+                    return redirect("/dashboard/addproject")
 
-        # Request files for the video
-        video_path = None
-        if 'video' in request.files:
-            video = request.files["video"]
-            if video.filename != '':
-                video_path = os.path.join("static/video", video.filename)
-                video.save(video_path)
-
-        # Save in database
+        # Save in database (video is just a URL string)
         cursor = get_cursor()
         cursor.execute(
-            "INSERT INTO projects (name, description, languages, img, video, git_url, live_url) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
-            (name, description, languages, image_path, video_path, git_url, live_url)
+            "INSERT INTO projects (name, description, languages, img, video, git_url, live_url, \"order\") VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", 
+            (name, description, languages, image_url, video_url, git_url, live_url, order)
         )
         get_db().commit()
         flash("Project added successfully!", "success")
@@ -237,6 +273,7 @@ def update():
         name = request.form.get("name")
         description = request.form.get("description")
         languages = request.form.get("languages")
+        video_url = request.form.get("video")  # YouTube URL from text input
         git_url = request.form.get("git_url")
         live_url = request.form.get("live_url")
         order = request.form.get("order")
@@ -255,58 +292,71 @@ def update():
                 return redirect("/dashboard")
 
         cursor = get_cursor()
-        cursor.execute("SELECT img, video FROM projects WHERE id = %s", (project_id,))
+        cursor.execute("SELECT img FROM projects WHERE id = %s", (project_id,))
         result = cursor.fetchall()
         
         if not result:
             flash("Project not found", "error")
             return redirect("/dashboard")
             
-        image_path = result[0]['img']
-        video_path = result[0]['video']
+        old_image_url = result[0]['img']
         
         if not name:
             flash("Project name is required", "error")
-            return redirect("/dashboard/update")
+            return redirect("/dashboard")
         
         if not description:
             flash("Description is required", "error")
-            return redirect("/dashboard/update")
+            return redirect("/dashboard")
         
         if not languages:
             flash("Languages are required", "error")
-            return redirect("/dashboard/update")
+            return redirect("/dashboard")
         
-        # Request files for the image
+        # Handle image upload/removal
+        image_url = old_image_url
         if 'img' in request.files:
             img = request.files["img"]
-            if img.filename != '':
-                if image_path and os.path.exists(image_path):
-                    os.remove(image_path)
-                image_path = os.path.join("static/img", img.filename)
-                img.save(image_path)
-            elif request.form.get("remove_img"):
-                if image_path and os.path.exists(image_path):
-                    os.remove(image_path)
-                image_path = None
+            if img and img.filename != '':
+                # Delete old image from Cloudinary
+                if old_image_url:
+                    try:
+                        public_id = get_cloudinary_public_id(old_image_url)
+                        if public_id:
+                            cloudinary.uploader.destroy(public_id, resource_type="image")
+                    except Exception as e:
+                        print(f"Failed to delete old image: {e}")
+                
+                # Upload new image
+                try:
+                    upload_result = cloudinary.uploader.upload(
+                        img,
+                        folder="portfolio/images",
+                        resource_type="image"
+                    )
+                    image_url = upload_result['secure_url']
+                except Exception as e:
+                    flash(f"Image upload failed: {str(e)}", "error")
+                    return redirect("/dashboard")
+        elif request.form.get("remove_img"):
+            # Remove image
+            if old_image_url:
+                try:
+                    public_id = get_cloudinary_public_id(old_image_url)
+                    if public_id:
+                        cloudinary.uploader.destroy(public_id, resource_type="image")
+                except Exception as e:
+                    print(f"Failed to delete image: {e}")
+            image_url = None
 
-        # Request files for the video
-        if 'video' in request.files:
-            video = request.files["video"]
-            if video.filename != '':
-                if video_path and os.path.exists(video_path):
-                    os.remove(video_path)
-                video_path = os.path.join("static/video", video.filename)
-                video.save(video_path)
-            elif request.form.get("remove_video"):
-                if video_path and os.path.exists(video_path):
-                    os.remove(video_path)
-                video_path = None
+        # Video is now just a URL, handle clearing if checkbox is checked
+        if request.form.get("remove_video"):
+            video_url = None
 
         # Save in database
         cursor.execute(
             "UPDATE projects SET name = %s, description = %s, languages = %s, img = %s, video = %s, git_url = %s, live_url = %s, \"order\" = %s WHERE id = %s", 
-            (name, description, languages, image_path, video_path, git_url, live_url, order, project_id)
+            (name, description, languages, image_url, video_url, git_url, live_url, order, project_id)
         )
         get_db().commit()
         flash("Project updated successfully!", "success")
@@ -322,20 +372,22 @@ def delete():
     if request.method == "POST":
         record_id = request.form.get("btn")
         
-        # Get project to delete associated files
+        # Get project to delete associated image from Cloudinary
         cursor = get_cursor()
-        cursor.execute("SELECT img, video FROM projects WHERE id = %s", (record_id,))
+        cursor.execute("SELECT img FROM projects WHERE id = %s", (record_id,))
         result = cursor.fetchall()
         
         if result:
-            img_path = result[0]['img']
-            video_path = result[0]['video']
+            img_url = result[0]['img']
             
-            # Delete files if they exist
-            if img_path and os.path.exists(img_path):
-                os.remove(img_path)
-            if video_path and os.path.exists(video_path):
-                os.remove(video_path)
+            # Delete image from Cloudinary (video is just a URL, no deletion needed)
+            if img_url:
+                try:
+                    public_id = get_cloudinary_public_id(img_url)
+                    if public_id:
+                        cloudinary.uploader.destroy(public_id, resource_type="image")
+                except Exception as e:
+                    print(f"Failed to delete image from Cloudinary: {e}")
         
         # Delete from database
         cursor.execute("DELETE FROM projects WHERE id = %s", (record_id,))

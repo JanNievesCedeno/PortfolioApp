@@ -2,30 +2,73 @@
 
 {% block main %}
     <hr>
-    <h2>Update</h2>
+    <h2>Update Project</h2>
     <hr>
     
     <form action="/dashboard/update" method="post" enctype="multipart/form-data">
         <div class="d-flex flex-column">
             <input name="id" type="text" value="{{record[0]['id']}}" readonly hidden>
-            <input name="name" value="{{record[0]['name']}}" type="text" placeholder="Project Name">
-            <input name="description" value="{{record[0]['description']}}" type="text" placeholder="Description">
-            <input name="languages" value="{{record[0]['languages']}}" type="text" placeholder="Languages/Tools">
-            <input name="git_url" value="{{record[0]['git_url'] or ''}}" type="text" placeholder="Git URL">
-            <input name="live_url" value="{{record[0]['live_url'] or ''}}" type="text" placeholder="Live URL">
-            <input name="order" value="{{record[0]['order']}}" type="number" placeholder="Order">
             
-            <label>Current Image: {{record[0]['img'] or 'None'}}</label>
-            <input name="img" type="file">
-            <label><input type="checkbox" name="remove_img"> Remove image</label>
+            <label for="name" class="form-label mt-2">Project Name:</label>
+            <input name="name" id="name" value="{{record[0]['name']}}" type="text" placeholder="Project Name" class="form-control" required>
             
-            <label>Current Video: {{record[0]['video'] or 'None'}}</label>
-            <input name="video" type="file">
-            <label><input type="checkbox" name="remove_video"> Remove video</label>
+            <label for="description" class="form-label mt-2">Description:</label>
+            <input name="description" id="description" value="{{record[0]['description']}}" type="text" placeholder="Description" class="form-control" required>
             
-            <button type="submit">Update Project</button>
+            <label for="languages" class="form-label mt-2">Languages/Tools:</label>
+            <input name="languages" id="languages" value="{{record[0]['languages']}}" type="text" placeholder="Languages/Tools" class="form-control" required>
+            
+            <label for="git_url" class="form-label mt-2">Git URL:</label>
+            <input name="git_url" id="git_url" value="{{record[0]['git_url'] or ''}}" type="url" placeholder="https://github.com/..." class="form-control">
+            
+            <label for="live_url" class="form-label mt-2">Live URL:</label>
+            <input name="live_url" id="live_url" value="{{record[0]['live_url'] or ''}}" type="url" placeholder="https://..." class="form-control">
+            
+            <label for="order" class="form-label mt-2">Display Order:</label>
+            <input name="order" id="order" value="{{record[0]['order']}}" type="number" placeholder="Order" class="form-control">
+            
+            <hr class="mt-4">
+            
+            <label class="form-label">Current Image:</label>
+            {% if record[0]['img'] %}
+                <img src="{{record[0]['img']}}" alt="Current image" class="img-thumbnail mb-2" style="max-width: 300px;">
+                <div class="form-check mb-2">
+                    <input type="checkbox" name="remove_img" id="remove_img" class="form-check-input">
+                    <label for="remove_img" class="form-check-label">Remove current image</label>
+                </div>
+            {% else %}
+                <p class="text-muted">No image uploaded</p>
+            {% endif %}
+            
+            <label for="img" class="form-label mt-2">Upload New Image:</label>
+            <input name="img" id="img" type="file" accept="image/*" class="form-control">
+            
+            <hr class="mt-4">
+            
+            <label class="form-label">Current YouTube Video:</label>
+            {% if record[0]['video'] %}
+                <p class="text-break">{{record[0]['video']}}</p>
+                <div class="ratio ratio-16x9 mb-2" style="max-width: 400px;">
+                    <iframe 
+                        src="{{ record[0]['video'].replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/') }}" 
+                        frameborder="0" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="form-check mb-2">
+                    <input type="checkbox" name="remove_video" id="remove_video" class="form-check-input">
+                    <label for="remove_video" class="form-check-label">Remove current video</label>
+                </div>
+            {% else %}
+                <p class="text-muted">No video URL added</p>
+            {% endif %}
+            
+            <label for="video" class="form-label mt-2">YouTube Video URL:</label>
+            <input name="video" id="video" value="{{record[0]['video'] or ''}}" type="url" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..." class="form-control">
+            <small class="text-muted">Paste a YouTube link to update the video</small>
+            
+            <button type="submit" class="btn btn-primary mt-4">Update Project</button>
         </div>
     </form>
         
-    </div>
 {% endblock %}

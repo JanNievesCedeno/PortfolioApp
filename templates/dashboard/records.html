@@ -28,21 +28,47 @@
                 <tr>
                     <th>{{loop.index}}</th>
                     <td>{{row['name']}}</td>
-                    <td>{{row['description']}}</td>
+                    <td>{{row['description'][:50]}}...</td>
                     <td>{{row['languages']}}</td>
-                    <td>{{row['img']}}</td>
-                    <td>{{row['video']}}</td>
-                    <td>{{row['git_url']}}</td>
-                    <td>{{row['live_url']}}</td>
-                    <td>{{row['order']}}</td>
+                    <td>
+                        {% if row['img'] %}
+                            <img src="{{row['img']}}" alt="Image" style="max-width: 100px; max-height: 60px;" class="img-thumbnail">
+                        {% else %}
+                            <span class="text-muted">No image</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row['video'] %}
+                            <a href="{{row['video']}}" target="_blank" class="text-decoration-none">
+                                <i class="bi bi-youtube"></i> YouTube
+                            </a>
+                        {% else %}
+                            <span class="text-muted">No video</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row['git_url'] %}
+                            <a href="{{row['git_url']}}" target="_blank" class="text-decoration-none">Git</a>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row['live_url'] %}
+                            <a href="{{row['live_url']}}" target="_blank" class="text-decoration-none">Live</a>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{row['order'] or '-'}}</td>
                     <td>
                         <form action="/dashboard" method="post">
-                            <button name="btn" value="{{row['id']}}" type="submit">Update</button>
+                            <button name="btn" value="{{row['id']}}" type="submit" class="btn btn-sm btn-warning">Update</button>
                         </form>
                     </td>
                     <td>
                         <form action="/dashboard/delete" method="post">
-                            <button name="btn" value="{{row['id']}}" type="submit">Delete</button>
+                            <button name="btn" value="{{row['id']}}" type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this project?')">Delete</button>
                         </form>
                     </td>
                 </tr>
@@ -75,7 +101,7 @@
                     <td>{{row['fname']}}</td>
                     <td>{{row['lname']}}</td>
                     <td>{{row['email']}}</td>
-                    <td>{{row['message']}}</td>
+                    <td>{{row['message'][:100]}}{% if row['message']|length > 100 %}...{% endif %}</td>
                 </tr>
                 {% endfor %}
                     
