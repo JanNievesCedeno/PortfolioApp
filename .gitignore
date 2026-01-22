@@ -6,3 +6,4 @@ static/img/*
 static/video/*
 !static/video/.gitkeep
 .env
+*.db
