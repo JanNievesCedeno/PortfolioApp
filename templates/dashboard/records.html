@@ -15,6 +15,9 @@
                     <th>Languages</th>
                     <th>Image</th>
                     <th>Video</th>
+                    <th>Git URL</th>
+                    <th>Live URL</th>
+                    <th>Order</th>
                     <th>Update</th>
                     <th>Delete</th>
                 </tr>
@@ -24,19 +27,22 @@
                 {% for row in project %}
                 <tr>
                     <th>{{loop.index}}</th>
-                    <td>{{row[1]}}</td>
-                    <td>{{row[2]}}</td>
-                    <td>{{row[3]}}</td>
-                    <td>{{row[4]}}</td>
-                    <td>{{row[5]}}</td>
+                    <td>{{row['name']}}</td>
+                    <td>{{row['description']}}</td>
+                    <td>{{row['languages']}}</td>
+                    <td>{{row['img']}}</td>
+                    <td>{{row['video']}}</td>
+                    <td>{{row['git_url']}}</td>
+                    <td>{{row['live_url']}}</td>
+                    <td>{{row['order']}}</td>
                     <td>
                         <form action="/dashboard" method="post">
-                            <button name="btn" value="{{row[0]}}" type="submit">Update</button>
+                            <button name="btn" value="{{row['id']}}" type="submit">Update</button>
                         </form>
                     </td>
                     <td>
                         <form action="/dashboard/delete" method="post">
-                            <button name="btn" value="{{row[0]}}" type="submit">Delete</button>
+                            <button name="btn" value="{{row['id']}}" type="submit">Delete</button>
                         </form>
                     </td>
                 </tr>
@@ -66,10 +72,10 @@
                 {% for row in contact %}
                 <tr>
                     <th>{{loop.index}}</th>
-                    <td>{{row[1]}}</td>
-                    <td>{{row[2]}}</td>
-                    <td>{{row[3]}}</td>
-                    <td>{{row[4]}}</td>
+                    <td>{{row['fname']}}</td>
+                    <td>{{row['lname']}}</td>
+                    <td>{{row['email']}}</td>
+                    <td>{{row['message']}}</td>
                 </tr>
                 {% endfor %}
                     

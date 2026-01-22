@@ -28,11 +28,44 @@
 
     <footer class="footer container">
         <div>
-            <a class="left" href="https://www.linkedin.com/in/jan-nieves-cedeño-643804176" target="_blank">LinkedIn</a>
+            <a class="left" href="https://www.linkedin.com/in/jannievescedeno/" target="_blank">LinkedIn</a>
             <a class="" href="https://github.com/JanNievesCedeno" target="_blank">Github</a>
             <!-- <a href="#">Gmail</a> -->
         </div>
     </footer>
+
+
+     <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast align-items-center text-bg-{{ 'danger' if category == 'error' else 'success' }} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                {{ message }}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Toast JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            var toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 3000
+                });
+            });
+            toastList.forEach(toast => toast.show());
+        });
+    </script>
     
 </body>
 </html>

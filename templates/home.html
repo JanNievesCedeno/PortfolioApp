@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block main %}
+    <hr class="top">
+    <h1 class="title">Projects</h1>
+    <hr class="bottom">
+    {% for row in projects %}
+        <section class="project">
+            <div class="margin">
+                <img class="img-fluid" src="{{row['img']}}" alt="Image" loading="lazy">
+            </div>
+            <div>
+                <span>Name: </span>
+                <p>{{row['name']}}</p>
+            </div>
+
+            <div>
+                <span>Description: </span>
+                <p>{{row['description']}}</p>
+            </div>
+
+            <div>
+                <span>Languages: </span>
+                <p class="text-primary">{{row['languages']}}</p>
+            </div>
+
+            {% if row['git_url']%}
+                <div>
+                    <a class="btn btn-primary mb-3" href="{{row['git_url']}}" target="_blank" rel="noopener noreferrer">GitHub Repository URL</a>
+                </div>
+            {% endif %}
+
+            {% if row['live_url']%}
+                <div>
+                    <a class="btn btn-primary mb-3" href="{{row['live_url']}}" target="_blank" rel="noopener noreferrer">Live URL</a>
+                </div>
+            {% endif %}
+
+            <div class="margin">
+                <video class="img-fluid object-fit-scale" src="{{row['video']}}" alt="Video" controls preload="auto"></video>
+            </div>
+        </section>
+    {% endfor %}
+{% endblock %}

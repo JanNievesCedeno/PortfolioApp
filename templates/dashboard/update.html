@@ -1,0 +1,31 @@
+{% extends "dashboard/nav.html" %}
+
+{% block main %}
+    <hr>
+    <h2>Update</h2>
+    <hr>
+    
+    <form action="/dashboard/update" method="post" enctype="multipart/form-data">
+        <div class="d-flex flex-column">
+            <input name="id" type="text" value="{{record[0]['id']}}" readonly hidden>
+            <input name="name" value="{{record[0]['name']}}" type="text" placeholder="Project Name">
+            <input name="description" value="{{record[0]['description']}}" type="text" placeholder="Description">
+            <input name="languages" value="{{record[0]['languages']}}" type="text" placeholder="Languages/Tools">
+            <input name="git_url" value="{{record[0]['git_url'] or ''}}" type="text" placeholder="Git URL">
+            <input name="live_url" value="{{record[0]['live_url'] or ''}}" type="text" placeholder="Live URL">
+            <input name="order" value="{{record[0]['order']}}" type="number" placeholder="Order">
+            
+            <label>Current Image: {{record[0]['img'] or 'None'}}</label>
+            <input name="img" type="file">
+            <label><input type="checkbox" name="remove_img"> Remove image</label>
+            
+            <label>Current Video: {{record[0]['video'] or 'None'}}</label>
+            <input name="video" type="file">
+            <label><input type="checkbox" name="remove_video"> Remove video</label>
+            
+            <button type="submit">Update Project</button>
+        </div>
+    </form>
+        
+    </div>
+{% endblock %}
