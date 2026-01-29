@@ -215,7 +215,7 @@ def addproject():
         
         # Convert order to int or None
         try:
-            order = int(order) if order and order.strip() else None
+            order = int(order) if order and order.strip() else 0
         except ValueError:
             flash("Order must be a valid integer", "error")
             return redirect("/dashboard/addproject")
