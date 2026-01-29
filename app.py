@@ -208,10 +208,17 @@ def addproject():
         name = request.form.get("name")
         description = request.form.get("description")
         languages = request.form.get("languages")
-        video_url = request.form.get("video")  # YouTube URL from text input
-        git_url = request.form.get("git_url")
-        live_url = request.form.get("live_url")
+        video_url = request.form.get("video") or None  # Convert empty string to None
+        git_url = request.form.get("git_url") or None  # Convert empty string to None
+        live_url = request.form.get("live_url") or None  # Convert empty string to None
         order = request.form.get("order")
+        
+        # Convert order to int or None
+        try:
+            order = int(order) if order and order.strip() else None
+        except ValueError:
+            flash("Order must be a valid integer", "error")
+            return redirect("/dashboard/addproject")
 
         if not name:
             flash("Project name is required", "error")
